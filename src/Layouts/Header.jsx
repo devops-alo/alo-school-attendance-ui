@@ -18,7 +18,7 @@ import {
   FiFileText,
   FiAward,
   FiMessageSquare,
-  // FiShield,
+  FiShield,
   FiSend,
   FiX,
 } from "react-icons/fi";
@@ -32,17 +32,12 @@ const NAV_ITEMS = [
   { label: "Leave", path: "leave-management", icon: FiSend },
   { label: "Academics", path: "academics", icon: FiAward },
   { label: "Complaint", path: "complaint", icon: FiMessageSquare },
-  // { label: "Harassment", path: "harassment", icon: FiShield },
+  { label: "Harassment", path: "harassment", icon: FiShield },
   { label: "Policies", path: "policies", icon: FiFileText },
 ];
 
 const Header = ({ handleLogout }) => {
   const userId = localStorage.getItem("userId");
-  const courseStatus = sessionStorage.getItem("courseStatus");
-    const navItems =
-    courseStatus === "completed"
-      ? NAV_ITEMS.filter((item) => item.path === "academics")
-      : NAV_ITEMS;
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [userProfile, setUserProfile] = useState(null);
@@ -139,14 +134,7 @@ const Header = ({ handleLogout }) => {
   };
 
   const handleNavClick = (path) => {
-    const courseStatus = sessionStorage.getItem("courseStatus");
-    
-    // If course is completed, only allow academics route
-    if (courseStatus === "completed" && path !== "academics") {
-      return;
-    }
-    
-    navigate(`/${path}/${userId}`, { replace: false });
+    navigate(`/${path}/${userId}`);
     setIsMobileMenuOpen(false);
   };
 
@@ -169,30 +157,19 @@ const Header = ({ handleLogout }) => {
         {/* Logo */}
         <div
           className={styles.logoWrapper}
-          onClick={() => {
-            const courseStatus = sessionStorage.getItem("courseStatus");
-            const targetPath = courseStatus === "completed" ? "academics" : "dashboard";
-            if (location.pathname.includes(`/${targetPath}`)) return;
-            navigate(`/${targetPath}/${userId}`, { replace: false });
-          }}
+          onClick={() => navigate(`/dashboard/${userId}`)}
           role="button"
           tabIndex={0}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              const courseStatus = sessionStorage.getItem("courseStatus");
-              const targetPath = courseStatus === "completed" ? "academics" : "dashboard";
-              if (!location.pathname.includes(`/${targetPath}`)) {
-                navigate(`/${targetPath}/${userId}`, { replace: false });
-              }
-            }
-          }}
+          onKeyDown={(e) =>
+            e.key === "Enter" && navigate(`/dashboard/${userId}`)
+          }
         >
           <img src={logo} alt="ALO School" className={styles.logo} />
         </div>
 
         {/* Desktop nav */}
         <nav className={styles.nav} aria-label="Main">
-          {navItems.map(({ label, path, icon: Icon }) => (
+          {NAV_ITEMS.map(({ label, path, icon: Icon }) => (
             <button
               key={path}
               className={`${styles.linkBtn} ${
@@ -331,7 +308,7 @@ const Header = ({ handleLogout }) => {
         </div>
 
         <nav className={styles.drawerNav} aria-label="Mobile">
-          {navItems.map(({ label, path, icon: Icon }) => (
+          {NAV_ITEMS.map(({ label, path, icon: Icon }) => (
             <button
               key={path}
               className={`${styles.drawerLink} ${

@@ -170,4 +170,17 @@ export const deleteDailyTask = (taskId) => {
   return apiService.delete(`/daily-task/${taskId}`);
 };
 
+/* ---------------- Daily quote ----------------
+   The student is taken from the `userid` header the axios interceptor sends. */
+
+// { checkedIn, picked, cardCount, cardNo, quote }
+export const getDailyQuote = () => {
+  return apiService.get(`/dailyQuote/today`);
+};
+
+// Turns over a card: { cardNo, quote } (the same quote if already picked today)
+export const pickDailyQuote = (cardNo) => {
+  return apiService.post(`/dailyQuote/pick`, { cardNo });
+};
+
 

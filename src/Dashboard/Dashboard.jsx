@@ -13,6 +13,7 @@ import EventCard from "../EventCard/EventCard";
 import Loader from "../loader/Loader";
 import noDataImg from "../assets/AloLogo/nodatasearch.png";
 import EndBreakModal from "./EndBreakModal";
+import DailyQuote from "./DailyQuote";
 import PageHero from "../Layouts/PageHero";
 import StudyIllustration from "../Layouts/StudyIllustration";
 import { FiClock, FiAlertCircle, FiTrendingUp } from "react-icons/fi";
@@ -76,6 +77,8 @@ const [isEndingBreak, setIsEndingBreak] = useState(false);
   const [earlyPer, setEarlyPer] = useState("");
 
   const [selectedRemark, setSelectedRemark] = useState(null);
+  // Bumped after a check-in so the daily quote cards unlock straight away
+  const [quoteRefresh, setQuoteRefresh] = useState(0);
 
  
   const [todayRecord, setTodayRecord] = useState(null);
@@ -279,8 +282,9 @@ const [isEndingBreak, setIsEndingBreak] = useState(false);
   return () => clearInterval(timer);
 }, [todayRecord]);
 
+  // Resolves true once the student is checked in (any of the three paths)
   const handleCheckIn = async () => {
-    if (isCheckingIn) return;
+    if (isCheckingIn) return false;
     setIsCheckingIn(true);
 
     try {
@@ -305,6 +309,7 @@ const [isEndingBreak, setIsEndingBreak] = useState(false);
 
         toast.success("Check-in successful!", { autoClose: 1000 });
       }
+      return true;
     } catch (err) {
       let errMsg =
         err.response?.data?.message ||
@@ -312,6 +317,7 @@ const [isEndingBreak, setIsEndingBreak] = useState(false);
         err.message ||
         "Something went wrong, please try again.";
       toast.error(errMsg, { autoClose: 1000 });
+      return false;
     } finally {
       setIsCheckingIn(false);
     }
@@ -494,7 +500,13 @@ const [isEndingBreak, setIsEndingBreak] = useState(false);
         eyebrowTone={status.tone}
         title="Welcome back,"
         highlight={`${user?.name || "Student"}! 👋`}
-        subtitle="Your future starts with today’s attendance"
+        subtitle={
+          <DailyQuote
+            fallback="Your future starts with today’s attendance"
+            refreshKey={quoteRefresh}
+            hidden={todayRecord?.onLeave === true}
+          />
+        }
         illustration={<StudyIllustration />}
         stats={[
           {
@@ -635,9 +647,9 @@ const [isEndingBreak, setIsEndingBreak] = useState(false);
           <thead>
             <tr>
               <th>Date</th>
-              <th>Checkin Time</th>
-              <th>Checkout Time</th>
-              <th>Checkout Remarks</th>
+              <th>Login Time</th>
+              <th>Logout Time</th>
+              <th>Logout Remarks</th>
               <th>Break Hours</th>
               <th>Class Hours</th>
               <th>Permission Hours</th>
@@ -759,13 +771,15 @@ const [isEndingBreak, setIsEndingBreak] = useState(false);
         isOpen={isCheckInModalOpen}
         onClose={() => setCheckInModalOpen(false)}
        onConfirm={async () => {
-  if (isCheckingIn) return; 
+  if (isCheckingIn) return;
 
   setIsCheckingIn(true);
 
-  await handleCheckIn();      
+  const checkedIn = await handleCheckIn();
   setIsCheckingIn(false);
   setCheckInModalOpen(false);
+  // Open the daily quote cards once the check-in modal has closed
+  if (checkedIn) setQuoteRefresh((prev) => prev + 1);
 }}
 
       />

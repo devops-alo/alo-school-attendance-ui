@@ -11,6 +11,7 @@ import { useState, useEffect } from "react";
 import ScrollToTop from "./ScrollToTop";   
 import Complaint from "./Complaint/Complaint";
 import Harassment from "./Harassement/Harassment";
+import DailyTask from "./DailyTask/DailyTask";
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -64,6 +65,15 @@ function App() {
           element={
             <PrivateRoute isAuthenticated={isAuthenticated}>
               <Dashboard />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/daily-tasks/:userId"
+          element={
+            <PrivateRoute isAuthenticated={isAuthenticated}>
+              <DailyTask />
             </PrivateRoute>
           }
         />

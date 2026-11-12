@@ -138,7 +138,7 @@ const Academics = () => {
           <table className={styles.table}>
             <thead>
               <tr>
-                {/* <th>Subject Code</th> */}
+                <th>Subject Code</th>
                 <th>Subject Name</th>
                 <th>Mark</th>
                 <th>Status</th>
@@ -156,7 +156,7 @@ const Academics = () => {
               ) : (
                 subjects[0].Marks.map((mark, index) => (
                   <tr key={index}>
-                    {/* <td>{mark.subjectCode}</td> */}
+                    <td>{mark.subjectCode}</td>
                     <td>{mark.subjectName}</td>
                     <td>{mark.mark}</td>
                     {/* <td className={mark.mark < 40 ? styles.fail : styles.pass}>
