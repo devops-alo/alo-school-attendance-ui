@@ -8,6 +8,8 @@ import { FiCheckCircle } from "react-icons/fi";
  * eyebrow      – small pill above the title (e.g. "Checked out")
  * eyebrowTone  – success | warn | neutral | idle
  * highlight    – tail of the title rendered in brand blue (e.g. the student's name)
+ * subtitle     – text under the title; an element (e.g. the dashboard's daily
+ *                quote) is rendered in a div instead of the <p>
  * illustration – artwork shown between the title block and the action slot
  * action       – anything rendered on the right of the title row
  * stats        – [{ key, icon, label, value, hint, tone }] rendered as a
@@ -43,7 +45,12 @@ const PageHero = ({
           )}
         </h1>
 
-        {subtitle && <p className={styles.subtitle}>{subtitle}</p>}
+        {subtitle &&
+          (typeof subtitle === "string" ? (
+            <p className={styles.subtitle}>{subtitle}</p>
+          ) : (
+            <div className={styles.subtitle}>{subtitle}</div>
+          ))}
         <span className={styles.rule} />
       </div>
 

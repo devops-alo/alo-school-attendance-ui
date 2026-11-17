@@ -120,6 +120,207 @@
   justify-content: center;
 }
 
+/* ---------- location + selfie steps ---------- */
+
+.modalWide {
+  max-width: 460px;
+}
+
+.modal h2.title {
+  margin-bottom: 10px;
+}
+
+.lead {
+  margin: -14px 0 22px;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--text-2);
+}
+
+.confirm,
+.cancel {
+  gap: 8px;
+}
+
+.actionsSingle {
+  display: flex;
+  justify-content: center;
+}
+
+.actionsSingle .cancel {
+  min-width: 140px;
+}
+
+.stepper {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin: 0 0 20px;
+  padding: 0;
+  list-style: none;
+}
+
+.stepItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px 6px 6px;
+  border-radius: var(--r-pill);
+  background: var(--surface-2);
+  color: var(--text-3);
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+.stepIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--surface);
+  font-size: 12px;
+}
+
+.stepActive {
+  background: var(--brand-050);
+  color: var(--brand-700);
+}
+
+.stepActive .stepIcon {
+  background: var(--brand-600);
+  color: #fff;
+}
+
+.stepDone {
+  background: var(--success-bg);
+  color: var(--success);
+}
+
+.stepDone .stepIcon {
+  background: var(--success);
+  color: #fff;
+}
+
+.status {
+  padding: 6px 0 0;
+}
+
+.status h2 {
+  margin-top: 14px;
+}
+
+.onCampus {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--success);
+}
+
+.videoWrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  margin: 0 0 12px;
+  overflow: hidden;
+  border-radius: var(--r-lg);
+  background: #0b1a33;
+}
+
+.video,
+.photo {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Mirror the live preview like a normal selfie camera */
+.video {
+  transform: scaleX(-1);
+}
+
+.faceGuide {
+  position: absolute;
+  top: 12%;
+  left: 50%;
+  width: 46%;
+  height: 76%;
+  transform: translateX(-50%);
+  border: 2px dashed rgba(255, 255, 255, 0.6);
+  border-radius: 50%;
+  pointer-events: none;
+  transition: border-color var(--t);
+}
+
+.faceGuideOk {
+  border: 3px solid var(--success);
+}
+
+.hint {
+  margin: 0 0 18px;
+  padding: 8px 12px;
+  border-radius: var(--r-md);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.hintOk {
+  background: var(--success-bg);
+  color: var(--success);
+}
+
+.hintWarn {
+  background: var(--warn-bg);
+  color: var(--warn);
+}
+
+.hintInfo {
+  background: var(--info-bg);
+  color: var(--info);
+}
+
+.errorIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--danger-bg);
+  color: var(--danger);
+  font-size: 26px;
+}
+
+.spinner,
+.spinnerDark {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2.5px solid rgba(255, 255, 255, 0.35);
+  border-top-color: #fff;
+  animation: spin 0.7s linear infinite;
+}
+
+.spinnerDark {
+  width: 36px;
+  height: 36px;
+  border-width: 3px;
+  border-color: var(--brand-100);
+  border-top-color: var(--brand-600);
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 @media (max-width: 420px) {
   .modal {
     padding: 24px 20px 22px;

@@ -29,10 +29,34 @@ export const getAttendance = (userId, month = false) => {
     : `/attendance?userId=${userId}`;
   return apiService.get(url);
 };
+// Campus point + radius for the check-in location check
+export const getCampusSettings = () => {
+  return apiService.get(`/attendance/campus`);
+};
+
+// Check-in form: selfie + location + device id (see CheckInModal)
+const checkInForm = (fields, verification) => {
+  const form = new FormData();
+  Object.entries(fields).forEach(([key, value]) => form.append(key, value));
+  form.append("selfie", verification.selfie, "selfie.jpg");
+  form.append("faceCheck", verification.faceCheck);
+  form.append("latitude", verification.latitude);
+  form.append("longitude", verification.longitude);
+  form.append("accuracy", verification.accuracy);
+  form.append("deviceId", verification.deviceId);
+  if (verification.fingerprint) form.append("fingerprint", verification.fingerprint);
+  return form;
+};
+
 //checkin
-export const checkIn=(userId)=>{
-  return apiService.post(`/attendance/create`,{userId});
-}
+export const checkIn = (userId, verification) => {
+  return apiService.post(`/attendance/create`, checkInForm({ userId }, verification));
+};
+
+// Check-in on a day with an approved permission (record already exists)
+export const permissionCheckIn = (id, time, userId, verification) => {
+  return apiService.put(`/attendance/${id}`, checkInForm({ inTime: time, userId }, verification));
+};
 
 //checkout
 export const checkOut = (attendanceId, remarks, userId, checkoutTime) => {
@@ -168,6 +192,19 @@ export const updateDailyTask = (taskId, taskData) => {
 
 export const deleteDailyTask = (taskId) => {
   return apiService.delete(`/daily-task/${taskId}`);
+};
+
+/* ---------------- Daily quote ----------------
+   The student is taken from the `userid` header the axios interceptor sends. */
+
+// { checkedIn, picked, cardCount, cardNo, quote }
+export const getDailyQuote = () => {
+  return apiService.get(`/dailyQuote/today`);
+};
+
+// Turns over a card: { cardNo, quote } (the same quote if already picked today)
+export const pickDailyQuote = (cardNo) => {
+  return apiService.post(`/dailyQuote/pick`, { cardNo });
 };
 
 

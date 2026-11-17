@@ -1,0 +1,654 @@
+/* ============================================================
+   Daily quote — sits in the dashboard hero in place of the
+   subtitle, plus the card picker modal that opens after check-in.
+   ============================================================ */
+
+/* ---------- In the hero (light card) ---------- */
+
+.locked {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--text-3);
+}
+
+.locked svg {
+  flex-shrink: 0;
+}
+
+/* Reopens the picker if it was closed without a quote (e.g. none available) */
+.revealButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 2px;
+  padding: 7px 14px;
+  border: 1px solid var(--brand-200);
+  border-radius: var(--r-pill);
+  background: var(--brand-050);
+  color: var(--brand-600);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 160ms ease, transform 160ms ease;
+}
+
+.revealButton svg {
+  color: var(--accent);
+}
+
+.revealButton:hover {
+  background: var(--brand-100);
+  transform: translateY(-1px);
+}
+
+.revealButton:focus-visible {
+  outline: none;
+  box-shadow: var(--ring);
+}
+
+.quote {
+  max-width: 640px;
+  margin: 0;
+  animation: rise 520ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+/* Quote and author run inline, so the author follows the last word */
+.quote blockquote,
+.quote figcaption {
+  display: inline;
+}
+
+.quote blockquote {
+  margin: 0;
+  color: var(--text-2);
+  font-style: italic;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+
+.quote figcaption {
+  margin-left: 8px;
+  white-space: nowrap;
+  color: var(--brand-500);
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+/* ---------- Modal ---------- */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2050;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(6, 21, 48, 0.55);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  animation: fadeIn 200ms ease both;
+}
+
+.modal {
+  width: 600px;
+  max-width: 100%;
+  max-height: calc(100vh - 32px);
+  box-sizing: border-box;
+  overflow-y: auto;
+  padding: 30px 26px 24px;
+  border-radius: var(--r-xl);
+  background: radial-gradient(120% 60% at 50% 0%, #fff4e0 0%, #fff 62%);
+  box-shadow: var(--sh-3);
+  animation: modalIn 260ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.modal:focus {
+  outline: none;
+}
+
+.overlayClosing {
+  animation: fadeOut 200ms ease both;
+  pointer-events: none;
+}
+
+.modalClosing {
+  animation: modalOut 200ms ease both;
+}
+
+.picker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  text-align: center;
+}
+
+.icon {
+  display: grid;
+  place-items: center;
+  width: 60px;
+  height: 60px;
+  margin-bottom: 16px;
+  border-radius: 18px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 26px;
+  box-shadow: 0 0 0 8px rgba(245, 166, 35, 0.14),
+    0 12px 24px rgba(245, 166, 35, 0.35);
+  animation: pop 320ms cubic-bezier(0.2, 0.9, 0.3, 1.3) both;
+}
+
+.title {
+  margin: 0;
+  color: var(--text);
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.description {
+  max-width: 330px;
+  margin: 8px 0 20px;
+  color: var(--text-2);
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+/* ---------- Card picker ---------- */
+
+.deck {
+  --card-w: 48px;
+  --card-h: 68px;
+  /* Spacing shrinks (and goes negative = overlap) so any count fits one row */
+  --step: min(
+    8px,
+    calc((100% - var(--count) * var(--card-w)) / (var(--count) - 1))
+  );
+
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  box-sizing: content-box;
+  width: calc(100% - 44px);
+  height: calc(var(--card-h) + 22px);
+  padding: 30px 22px 22px;
+  overflow: hidden;
+  border-radius: 18px;
+  background: radial-gradient(
+      ellipse at 50% 0%,
+      rgba(63, 122, 224, 0.4),
+      transparent 65%
+    ),
+    linear-gradient(160deg, #061530 0%, #144196 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  perspective: 900px;
+}
+
+.card {
+  /* --pos (position in the fan, -1 left end .. 1 right end) and the deal
+     delay are set inline by DailyQuote.jsx. Named --pos, not --t: theme.css
+     already uses --t for motion timing. */
+  --pos: 0;
+  /* Each card tilts around its own centre and dips along a curve,
+     so the fan never spills sideways out of the table */
+  --rot: calc(var(--pos) * 10deg);
+  --y: calc(var(--pos) * var(--pos) * 14px);
+
+  position: relative;
+  flex: 0 0 var(--card-w);
+  width: var(--card-w);
+  height: var(--card-h);
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  transform: translateY(var(--y)) rotate(var(--rot));
+  transition: transform 220ms ease;
+  /* backwards (not both) so the animation stops owning transform once dealt, and hover can lift */
+  animation: deal 520ms cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+  /* .pending's animation shorthand resets this, so the tapped card bobs at once */
+  animation-delay: var(--deal-delay, 0ms);
+}
+
+.card + .card {
+  margin-left: var(--step);
+}
+
+.card:hover:not(:disabled),
+.card:focus-visible {
+  z-index: 2;
+  transform: translateY(calc(var(--y) - 14px)) rotate(var(--rot));
+}
+
+.card:focus-visible {
+  outline: none;
+}
+
+.card:focus-visible .back {
+  box-shadow: 0 0 0 3px #fde68a;
+}
+
+.card:disabled {
+  cursor: default;
+}
+
+.card:disabled:not(.pending):not(.flipped) {
+  opacity: 0.45;
+}
+
+.inner {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  transition: transform 700ms cubic-bezier(0.3, 0.7, 0.2, 1);
+}
+
+.back,
+.front {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.back {
+  border: 2px solid #fff;
+  background: radial-gradient(
+      circle at 50% 50%,
+      rgba(255, 255, 255, 0.35) 0 9px,
+      transparent 10px
+    ),
+    repeating-linear-gradient(
+      45deg,
+      rgba(255, 255, 255, 0.14) 0 4px,
+      transparent 4px 8px
+    ),
+    linear-gradient(150deg, #fbbf24, #f97316);
+  color: #fff;
+  font-size: 15px;
+  box-shadow: inset 0 0 0 3px rgba(249, 115, 22, 0.35),
+    0 8px 16px rgba(3, 12, 30, 0.45);
+}
+
+.front {
+  border: 2px solid #fde68a;
+  background: #fff;
+  color: var(--brand-600);
+  font-size: 18px;
+  font-weight: 800;
+  transform: rotateY(180deg);
+  box-shadow: 0 12px 24px rgba(3, 12, 30, 0.5);
+}
+
+/* Waiting for the server: the tapped card bobs */
+.pending {
+  z-index: 3;
+  animation: bob 700ms ease-in-out infinite;
+}
+
+/* Revealed: rise out of the fan, straighten and turn over */
+.flipped {
+  z-index: 4;
+  transform: translateY(-6px) scale(1.2);
+  animation: none;
+}
+
+.flipped .inner {
+  transform: rotateY(180deg);
+}
+
+.deckHint {
+  margin: 10px 0 0;
+  color: var(--text-3);
+  font-size: 12px;
+  text-align: center;
+}
+
+.closeLink {
+  display: block;
+  margin: 6px auto 0;
+  padding: 4px 10px;
+  border: 0;
+  background: none;
+  color: var(--text-2);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.closeLink:hover {
+  color: var(--brand-700);
+}
+
+/* ---------- Revealed quote ---------- */
+
+.reveal {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  width: 100%;
+  perspective: 1200px;
+}
+
+/* The picked card, turned over and grown into a quote card:
+   navy header band, round quote badge on its edge, light body */
+.quoteCard {
+  position: relative;
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid #d8e4f7;
+  border-radius: 22px;
+  background: linear-gradient(180deg, var(--brand-050) 0%, #ffffff 100%);
+  box-shadow: 0 22px 44px rgba(6, 21, 48, 0.16),
+    0 4px 12px rgba(20, 65, 150, 0.08);
+  text-align: center;
+  animation: cardTurn 650ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.cardHead {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  height: 92px;
+  padding: 18px 22px;
+  box-sizing: border-box;
+  overflow: hidden;
+  background: radial-gradient(
+      circle at 85% -30%,
+      rgba(199, 217, 247, 0.55),
+      transparent 55%
+    ),
+    radial-gradient(circle at 0% 120%, rgba(63, 122, 224, 0.6), transparent 50%),
+    linear-gradient(135deg, #061530 0%, #144196 55%, #3f7ae0 100%);
+}
+
+/* Soft dotted texture and a curved bottom edge on the band */
+.cardHead::before {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(
+    rgba(255, 255, 255, 0.16) 1px,
+    transparent 1.4px
+  );
+  background-size: 14px 14px;
+  mask-image: linear-gradient(90deg, transparent, #000 60%);
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 60%);
+  content: "";
+}
+
+.cardHead::after {
+  position: absolute;
+  right: -10%;
+  bottom: -36px;
+  left: -10%;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--brand-050);
+  content: "";
+}
+
+/* One light sweep across the band as it lands */
+.shine {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 35%,
+    rgba(255, 255, 255, 0.22) 50%,
+    transparent 65%
+  );
+  transform: translateX(-120%);
+  animation: sweep 1.1s 0.55s ease-out forwards;
+  pointer-events: none;
+}
+
+.headLabel,
+.cardBadge {
+  position: relative;
+  z-index: 1;
+}
+
+.headLabel {
+  color: rgba(232, 239, 252, 0.85);
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.cardBadge {
+  padding: 4px 11px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: var(--r-pill);
+  background: rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(6px);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+/* Round badge sitting on the band's curved edge */
+.quoteMark {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 62px;
+  height: 62px;
+  margin: -38px auto 0;
+  padding-top: 18px;
+  box-sizing: border-box;
+  border: 4px solid #fff;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #3f7ae0, #144196);
+  box-shadow: 0 10px 22px rgba(20, 65, 150, 0.35);
+  color: #fff;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 50px;
+  line-height: 1;
+}
+
+.cardBody {
+  padding: 16px 34px 28px;
+}
+
+.quoteCard blockquote {
+  margin: 0;
+  color: var(--brand-800);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 20px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+/* Author: initial + name, set off by a thin rule */
+.quoteCard figcaption {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px dashed var(--brand-200);
+  text-align: left;
+}
+
+.authorDot {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--brand-100);
+  box-shadow: inset 0 0 0 2px var(--brand-200);
+  color: var(--brand-600);
+  font-size: 14px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.authorName {
+  display: flex;
+  flex-direction: column;
+  color: var(--brand-800);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.authorName small {
+  color: var(--text-3);
+  font-size: 11.5px;
+  font-weight: 500;
+}
+
+.revealAction {
+  width: 100%;
+  height: 50px;
+  border: 0;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #144196 0%, #1c56c0 100%);
+  color: #fff;
+  font-family: inherit;
+  font-size: 15.5px;
+  font-weight: 700;
+  box-shadow: 0 10px 22px rgba(20, 65, 150, 0.3);
+  cursor: pointer;
+  transition: transform 160ms ease, box-shadow 160ms ease;
+}
+
+.revealAction:hover {
+  background: linear-gradient(135deg, #1c56c0 0%, #3f7ae0 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 14px 28px rgba(20, 65, 150, 0.36);
+}
+
+.revealAction:focus-visible {
+  outline: 3px solid rgba(63, 122, 224, 0.45);
+  outline-offset: 2px;
+}
+
+/* ---------- Motion ---------- */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes fadeOut {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes modalIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.97);
+  }
+}
+
+@keyframes modalOut {
+  to {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+}
+
+@keyframes pop {
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+}
+
+@keyframes deal {
+  from {
+    opacity: 0;
+    transform: translateY(24px) rotate(0deg) scale(0.8);
+  }
+}
+
+@keyframes bob {
+  0%,
+  100% {
+    transform: translateY(calc(var(--y) - 8px)) rotate(var(--rot));
+  }
+  50% {
+    transform: translateY(calc(var(--y) - 16px)) rotate(var(--rot));
+  }
+}
+
+@keyframes cardTurn {
+  from {
+    opacity: 0;
+    transform: rotateY(-75deg) scale(0.85);
+  }
+}
+
+@keyframes sweep {
+  to {
+    transform: translateX(120%);
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+@media (max-width: 600px) {
+  .modal {
+    padding: 24px 16px 20px;
+  }
+
+  .deck {
+    --card-w: 38px;
+    --card-h: 54px;
+
+    width: calc(100% - 24px);
+    padding: 24px 12px 18px;
+  }
+
+  .cardBody {
+    padding: 14px 18px 22px;
+  }
+
+  .quoteCard blockquote {
+    font-size: 17px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .overlay,
+  .modal,
+  .icon,
+  .card,
+  .pending,
+  .quote,
+  .quoteCard {
+    animation: none;
+  }
+
+  .shine {
+    display: none;
+  }
+
+  .inner,
+  .card {
+    transition: none;
+  }
+}
