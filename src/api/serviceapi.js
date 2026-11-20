@@ -1,4 +1,5 @@
 import apiService from "./apiService";
+import { getDeviceId } from "../utils/deviceIdentity";
 
 
 //login
@@ -44,7 +45,6 @@ const checkInForm = (fields, verification) => {
   form.append("longitude", verification.longitude);
   form.append("accuracy", verification.accuracy);
   form.append("deviceId", verification.deviceId);
-  if (verification.fingerprint) form.append("fingerprint", verification.fingerprint);
   return form;
 };
 
@@ -64,6 +64,7 @@ export const checkOut = (attendanceId, remarks, userId, checkoutTime) => {
     remarks,
     userId,
     outTime: checkoutTime,
+    deviceId: getDeviceId(),
   });
 };
 
@@ -113,8 +114,9 @@ export const updateAttendance=(id,time,userId)=>{
 }
 
 
+// Break out and break in (the server decides which from the record)
 export const startBreak = (attendanceId, breakTime) =>{
-  return apiService.put(`/attendance/break/${attendanceId}`, { breakTime });
+  return apiService.put(`/attendance/break/${attendanceId}`, { breakTime, deviceId: getDeviceId() });
 }
 
 export const getAttendanceRate = (userId, fromDate, toDate) =>{

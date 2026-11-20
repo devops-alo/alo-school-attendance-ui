@@ -6,7 +6,7 @@ import checkInImg from "../assets/AloLogo/checkin.png";
 import { getCampusSettings } from "../api/serviceapi";
 import { getPosition, distanceMeters, formatDistance, locationErrorMessage } from "../utils/geo";
 import { loadFaceDetector, countFaces } from "../utils/faceDetector";
-import { getDeviceId, getFingerprint } from "../utils/deviceIdentity";
+import { getDeviceId } from "../utils/deviceIdentity";
 
 // Check-in: confirm -> location on campus -> live selfie with a face -> submit.
 // The server repeats every check; the ones here only give early, clear errors.
@@ -260,16 +260,13 @@ const CheckInModal = ({ isOpen, onClose, onConfirm }) => {
   const submit = async () => {
     if (!photo || !location) return;
     setStep("submitting");
-    const deviceId = getDeviceId();
-    const fingerprint = await getFingerprint();
     const result = await onConfirm({
       selfie: photo.blob,
       faceCheck: photo.faceCheck,
       latitude: location.latitude,
       longitude: location.longitude,
       accuracy: location.accuracy,
-      deviceId,
-      fingerprint,
+      deviceId: getDeviceId(),
     });
     if (!openRef.current) return; // parent closed the modal on success
     if (!result?.ok) {

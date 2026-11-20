@@ -358,7 +358,7 @@ const [isEndingBreak, setIsEndingBreak] = useState(false);
     setBreakModalOpen(false);
   } catch (err) {
     console.error("Error starting break:", err);
-    toast.error("Failed to start break", { autoClose: 1000 });
+    toast.error(err.response?.data?.message || "Failed to start break", { autoClose: 3000 });
   }
 
   setIsTakingBreak(false);
@@ -389,7 +389,7 @@ const [isEndingBreak, setIsEndingBreak] = useState(false);
     toast.success("Break ended successfully!", { autoClose: 1000 });
   } catch (err) {
     console.error("Error ending break:", err);
-    toast.error("Failed to end break", { autoClose: 1000 });
+    toast.error(err.response?.data?.message || "Failed to end break", { autoClose: 3000 });
   }
 
   setIsEndingBreak(false);
